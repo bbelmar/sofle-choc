@@ -5,7 +5,7 @@
  */
 
 // NOTE: Ensure in sofle.conf: CONFIG_ZMK_POINTING=y
-// Adjust scroll step if desired (default is 10)
+// Adjust scroll step if desired (1–80+). Lower = smaller scroll per tick.
 #define ZMK_POINTING_DEFAULT_SCRL_VAL 80
 
 #include <behaviors.dtsi>
@@ -13,10 +13,8 @@
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/rgb.h>
 #include <dt-bindings/zmk/ext_power.h>
-// #include <dt-bindings/zmk/mouse.h>
 #include <dt-bindings/zmk/outputs.h>
 #include <dt-bindings/zmk/pointing.h>
-
 
 #define BASE 0
 #define LOWER 1
@@ -35,17 +33,12 @@
     };
 
     // --- Behaviors -----------------------------------------------------------------
-      // One behavior per direction, each directly calls &msc
-      enc_scrl_cw: enc_scrl_cw {
-        compatible = "zmk,behavior-sensor-rotate";
-        bindings = <&msc SCRL_UP>;
-      };
-    
-      enc_scrl_ccw: enc_scrl_ccw {
-        compatible = "zmk,behavior-sensor-rotate";
-        bindings = <&msc SCRL_DOWN>;
-      };
-
+    behaviors {
+        // Single rotate behavior with both directions (CW, CCW)
+        rot_scroll: rot_scroll {
+            compatible = "zmk,behavior-sensor-rotate";
+            bindings = <&msc SCRL_UP>, <&msc SCRL_DOWN>;
+        };
     };
 
     keymap {
@@ -68,10 +61,8 @@
                                                                       &tog RAISE     &mkp MB2  &kp LGUI &mkp MB3  &mkp MB1
             >;
 
-            // Encoder: real mouse scroll
-            sensor-bindings = <&enc_scrl_cw>, <&enc_scrl_ccw>;   // one tuple per sensor
-
-
+            // Encoder: real mouse scroll (one tuple per sensor)
+            sensor-bindings = <&rot_scroll>;
         };
 
         lower_layer {
@@ -94,7 +85,6 @@
 
             // Encoder: volume down/up via keys
             sensor-bindings = <&inc_dec_kp K_VOL_DN K_VOL_UP>;
-
         };
 
         raise_layer {
@@ -135,7 +125,7 @@
                                                                                         &kp A      &kp B  &kp C &kp D  &kp E
            >;
 
-            // Encoder: two separate tuples
+            // Encoder: two separate tuples if you have multiple sensors
             sensor-bindings = <&inc_dec_kp DOWN UP>, <&inc_dec_kp PG_UP PG_DN>;
         };
 
