@@ -4,9 +4,15 @@
  * SPDX-License-Identifier: MIT
  */
 
-// NOTE: Ensure in sofle.conf: CONFIG_ZMK_POINTING=y
-// Adjust scroll step if desired (1–80+). Lower = smaller scroll per tick.
-#define ZMK_POINTING_DEFAULT_SCRL_VAL 10
+// NOTE: Ensure in sofle.conf:
+//   CONFIG_ZMK_POINTING=y
+//   CONFIG_EC11=y
+//   CONFIG_EC11_TRIGGER_GLOBAL_THREAD=y
+// Optional display preference:
+//   # CONFIG_ZMK_DISPLAY_INVERT=y
+
+// Tune scroll step (classic wheel). Valid: 1..80+. Smaller = gentler per tick.
+#define ZMK_POINTING_DEFAULT_SCRL_VAL 3
 
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
@@ -22,7 +28,6 @@
 #define ADJUST 3
 
 / {
-
     // Activate ADJUST layer by pressing raise and lower
     conditional_layers {
         compatible = "zmk,conditional-layers";
@@ -34,11 +39,11 @@
 
     // --- Behaviors -----------------------------------------------------------------
     behaviors {
-        // Single rotate behavior with both directions (CW, CCW)
+        // Rotate behavior that forwards per-direction params to &msc
         rot_scroll: rot_scroll {
-            compatible = "zmk,behavior-sensor-rotate";
-            #sensor-binding-cells = <0>;    // required by zmk,behavior-sensor-rotate
-            bindings = <&msc SCRL_UP>, <&msc SCRL_DOWN>;
+            compatible = "zmk,behavior-sensor-rotate-var";
+            #sensor-binding-cells = <2>;
+            bindings = <&msc>, <&msc>; // CW uses first param, CCW uses second
         };
     };
 
@@ -62,18 +67,20 @@
                                                                       &tog RAISE     &mkp MB2  &kp LGUI &mkp MB3  &mkp MB1
             >;
 
-            // Encoder: real mouse scroll (one tuple per sensor)
-            sensor-bindings = <&rot_scroll>;
+            // Encoder: classic mouse wheel via &msc
+            // Swap SCRL_UP/DOWN if the direction feels inverted.
+            sensor-bindings = <&rot_scroll SCRL_UP SCRL_DOWN>;
+            // DEBUG fallback (if needed):
+            // sensor-bindings = <&inc_dec_kp PG_UP PG_DN>;
         };
 
         lower_layer {
             label = "#-Symb";
-// TODO: Some binds are waiting for shifted keycode support.
 // ------------------------------------------------------------------------------------------------------------
 // |    ~  |  F1 |  F2 |  F3  |  F4  |  F5  |                     |  +   |  F7   |  F8   |  F9  |  F10  |  F11  |
 // |   |   |  !  |  @  |  #   |  $   |  %   |                     |  -   |  7    |  8    |  9   |   0   |  F12  |
 // |  CUT  | COPY| PASTE |  MK3 |  MK2 | MK1  |                   |  *   |  4    |  5    |  6   |   )   |   |   |
-// |   {   |  }  |  [  |  ]   | pg dn | pg up |        |  |       |  /   |  1    |  2    |  3   |   ;   |   \   |
+// |   {   |  }  |  [  |  ]   | pg dn | pg up |        |  |       |  /   |  1    |  2    |  3   |   ;   |   \\   |
 //        | TOG LOWER | DOWN  |  GUI  | SHIFT |        |  |       |  space  |  0    |  ,    |  .   |
             bindings = <
 &kp TILDE  &kp F1    &kp F2    &kp F3      &kp F4    &kp F5                       &kp KP_PLUS     &kp F7   &kp F8  &kp F9  &kp F10   &kp F11
@@ -126,7 +133,7 @@
                                                                                         &kp A      &kp B  &kp C &kp D  &kp E
            >;
 
-            // Encoder: two separate tuples if you have multiple sensors
+            // If you have multiple sensors in your overlay, add one tuple per sensor here in the same order
             sensor-bindings = <&inc_dec_kp DOWN UP>, <&inc_dec_kp PG_UP PG_DN>;
         };
 
