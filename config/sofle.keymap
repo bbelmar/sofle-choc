@@ -6,7 +6,7 @@
 
 // NOTE: Ensure in sofle.conf: CONFIG_ZMK_POINTING=y
 // Adjust scroll step if desired (default is 10)
-#define ZMK_POINTING_DEFAULT_SCRL_VAL 10
+#define ZMK_POINTING_DEFAULT_SCRL_VAL 50
 
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
