@@ -65,7 +65,7 @@
             >;
 
             // Encoder: real mouse scroll
-            sensor-bindings = <&rot_scroll SCRL_UP SCRL_DOWN>;
+            sensor-bindings = <&msc SCRL_UP SCRL_DOWN>;
         };
 
         lower_layer {
