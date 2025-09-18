@@ -13,7 +13,7 @@
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/rgb.h>
 #include <dt-bindings/zmk/ext_power.h>
-#include <dt-bindings/zmk/mouse.h>
+// #include <dt-bindings/zmk/mouse.h>
 #include <dt-bindings/zmk/outputs.h>
 #include <dt-bindings/zmk/pointing.h>
 
@@ -35,13 +35,17 @@
     };
 
     // --- Behaviors -----------------------------------------------------------------
-    behaviors {
-        // Rotate behavior that can call &msc with per-direction params
-        rot_scroll: rot_scroll {
-            compatible = "zmk,behavior-sensor-rotate-var";
-            #sensor-binding-cells = <2>;
-            bindings = <&msc>, <&msc>;
-        };
+      // One behavior per direction, each directly calls &msc
+      enc_scrl_cw: enc_scrl_cw {
+        compatible = "zmk,behavior-sensor-rotate";
+        bindings = <&msc SCRL_UP>;
+      };
+    
+      enc_scrl_ccw: enc_scrl_ccw {
+        compatible = "zmk,behavior-sensor-rotate";
+        bindings = <&msc SCRL_DOWN>;
+      };
+
     };
 
     keymap {
@@ -65,7 +69,8 @@
             >;
 
             // Encoder: real mouse scroll
-            sensor-bindings = <&rot_scroll SCRL_UP SCRL_DOWN>;
+            sensor-bindings = <&enc_scrl_cw>, <&enc_scrl_ccw>;   // one tuple per sensor
+
 
         };
 
