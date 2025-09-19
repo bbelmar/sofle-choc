@@ -12,7 +12,7 @@
 //   # CONFIG_ZMK_DISPLAY_INVERT=y
 
 // Tune scroll step (classic wheel). Valid: 1..80+. Smaller = gentler per tick.
-#define ZMK_POINTING_DEFAULT_SCRL_VAL 10
+#define ZMK_POINTING_DEFAULT_SCRL_VAL 5
 
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
