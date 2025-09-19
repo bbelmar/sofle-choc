@@ -69,7 +69,7 @@
             // Swap F14/F15 if direction feels inverted.
             // sensor-bindings = <&rot_kp F14 F15>;
             // Alternative: Page Up/Down if you prefer mapping those instead
-            sensor-bindings = <&rot_kp PG_UP PG_DN>;
+            sensor-bindings = <&inc_dec_kp PG_UP PG_DN>;
         };
 
         lower_layer {
