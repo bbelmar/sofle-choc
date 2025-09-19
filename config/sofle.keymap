@@ -4,13 +4,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-// NOTE: For OS-side remap (F14/F15 -> Wheel Up/Down), pointing is NOT required.
-// You can leave these on or remove them; they don't affect the key-based approach.
-//   CONFIG_ZMK_POINTING=y
-//   CONFIG_EC11=y
-//   CONFIG_EC11_TRIGGER_GLOBAL_THREAD=y
+// Portable PgUp/PgDn wheel: no pointing headers/configs required.
 // Optional display preference:
-//   # CONFIG_ZMK_DISPLAY_INVERT=y
+//   /* CONFIG_ZMK_DISPLAY_INVERT=y */
 
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
@@ -18,7 +14,6 @@
 #include <dt-bindings/zmk/rgb.h>
 #include <dt-bindings/zmk/ext_power.h>
 #include <dt-bindings/zmk/outputs.h>
-// <dt-bindings/zmk/pointing.h> not required for OS remap approach
 
 #define BASE 0
 #define LOWER 1
@@ -26,7 +21,7 @@
 #define ADJUST 3
 
 / {
-    // Activate ADJUST layer by pressing raise and lower
+    /* Activate ADJUST layer by pressing raise and lower */
     conditional_layers {
         compatible = "zmk,conditional-layers";
         adjust_layer {
@@ -35,27 +30,18 @@
         };
     };
 
-    // --- Behaviors -----------------------------------------------------------------
-    behaviors {
-        // Rotate behavior that forwards per-direction params to &kp (key press)
-        rot_kp: rot_kp {
-            compatible = "zmk,behavior-sensor-rotate-var";
-            #sensor-binding-cells = <2>;
-            bindings = <&kp>, <&kp>; // CW uses first param, CCW uses second
-        };
-    };
-
     keymap {
         compatible = "zmk,keymap";
 
         default_layer {
             label = "Input";
-// -----------------------------------------------------------------------------------------------------------
-// |  ESC  |  RAISE | home |  RET |  end | SCREEN |                 |  -   |  7    | BKSPC |  (   |   )   |   =   |
-// |  TAB  |  Q  |  W  |  E   |  R   |  T   |                       |  Y   |  U    |  I    |  O   |   P   | DEL   |
-// |  CAPS |  A  |  S  |  D   |  F   |  G   |                       |  H   |  J    |  K    |  L   |   /   |   '   |
-// | SHIFT |  Z  |  X  |  C   |  V   |  B   |  F5  |  |           |  N   |  M    |  ,    |  .   |   ;   | TERMINAL |
-//               | LOWER| ALT  | LGUI | SHIFT|  LOWER |  | LCTRL | SPACE| calc  | vol down   | vol up  |
+            /* -------------------------------------------------------------------------------------------
+             |  ESC  |  RAISE | home |  RET |  end | SCREEN |                 |  -   |  7  | BKSPC | ( | ) | = |
+             |  TAB  |  Q     |  W   |  E   |  R   |  T     |                 |  Y   |  U  |  I    | O | P | DEL |
+             |  CAPS |  A     |  S   |  D   |  F   |  G     |                 |  H   |  J  |  K    | L | / |  '  |
+             | SHIFT |  Z     |  X   |  C   |  V   |  B     |  F5  | |        |  N   |  M  |  ,    | . | ; | TERM |
+                         | LOWER| ALT | LGUI | SHIFT| LOWER | | LCTRL | SPACE | calc | vol- | vol+ |
+            ------------------------------------------------------------------------------------------- */
             bindings = <
 &kp ESC &mo RAISE &kp HOME   &kp RET   &kp END    &kp LG(LS(S))               &kp MINUS &kp N7    &kp BSPC    &kp LPAR   &kp RPAR   &kp EQUAL
 &kp TAB   &kp Q  &kp W    &kp E    &kp R     &kp T                            &kp Y  &kp U     &kp I     &kp O    &kp P    &kp DEL
@@ -65,21 +51,12 @@
                                                                       &tog RAISE     &mkp MB2  &kp LGUI &mkp MB3  &mkp MB1
             >;
 
-            // Encoder: send F14/F15 to OS; remap in Input Remapper to Wheel Up/Down
-            // Swap F14/F15 if direction feels inverted.
-            // sensor-bindings = <&rot_kp F14 F15>;
-            // Alternative: Page Up/Down if you prefer mapping those instead
+            /* Encoder: send PgUp/PgDn to OS (portable); swap order to invert direction */
             sensor-bindings = <&inc_dec_kp PG_UP PG_DN>;
         };
 
         lower_layer {
             label = "#-Symb";
-// ------------------------------------------------------------------------------------------------------------
-// |    ~  |  F1 |  F2 |  F3  |  F4  |  F5  |                     |  +   |  F7   |  F8   |  F9  |  F10  |  F11  |
-// |   |   |  !  |  @  |  #   |  $   |  %   |                     |  -   |  7    |  8    |  9   |   0   |  F12  |
-// |  CUT  | COPY| PASTE |  MK3 |  MK2 | MK1  |                   |  *   |  4    |  5    |  6   |   )   |   |   |
-// |   {   |  }  |  [  |  ]   | pg dn | pg up |        |  |       |  /   |  1    |  2    |  3   |   ;   |   \\   |
-//        | TOG LOWER | DOWN  |  GUI  | SHIFT |        |  |       |  space  |  0    |  ,    |  .   |
             bindings = <
 &kp TILDE  &kp F1    &kp F2    &kp F3      &kp F4    &kp F5                       &kp KP_PLUS     &kp F7   &kp F8  &kp F9  &kp F10   &kp F11
 &kp PIPE   &kp EXCL  &kp AT    &kp HASH    &kp DLLR  &kp PRCNT                     &kp KP_MINUS    &kp N7   &kp N8  &kp N9  &kp N0    &kp F12
@@ -89,18 +66,11 @@
                                                                          &kp RET   &kp RIGHT  &kp UP &kp LEFT  &kp DOWN
             >;
 
-            // Encoder: volume down/up via keys
             sensor-bindings = <&inc_dec_kp K_VOL_DN K_VOL_UP>;
         };
 
         raise_layer {
             label = "NAVS";
-// ------------------------------------------------------------------------------------------------------------
-// |   ESC |  1   |  2   |   3   |   4   |  5   |                | HOME | END   | BRWSER | FOLDER | SETTINGS |   N6  |
-// |   TAB |  Q   |  W   |   E   |   R   |  T   |                | PGUP | LC(W) |   ^   | LC(T) | LC(LS(T)) |   N7  |
-// | SHIFT |  A   |  S   |   D   |   F   |  G   |                | PGDN |  PASTE| COPY  |  CUT  |  DEL  | BKSPC |
-// |  CTRL |  Z   |  X   |   C   |   V   |  B   |  F5  |   |     | tab- | tab+  |       |      | bright-|bright+ |
-//                |  Y   |   U   |   I   | SPACE | LOWER|  | LCTRL | F5 | LSHIFT |vol-   |vol+  |
             bindings = <
 &kp ESC     &kp N1       &kp N2     &kp N3    &kp N4   &kp N5                  &kp HOME      &kp END     &kp LG(N1)  &kp LG(N2)   &kp LG(N3)     &kp LG(N4)
 &kp TAB     &kp Q        &kp W      &kp E     &kp R    &kp T                   &kp PG_UP     &kp LC(W)   &kp UP      &kp LC(T)    &kp LC(LS(T))  &kp LG(N5)
@@ -110,17 +80,10 @@
                                                                                       &tog RAISE &mkp MB2  &kp LGUI &mkp MB3  &mkp MB1
             >;
 
-            // Encoder: page down/up via keys
             sensor-bindings = <&inc_dec_kp PG_DN PG_UP>;
         };
 
         adjust_layer {
-// ----------------------------------------------------------------------------------------------------------------------------
-// | BTCLR  |  BT1    |  BT2    |   BT3   |   BT4   |   BT5   |                  | BTCLR  |  BT1    |  BT2    |   BT3   |   BT4   |   BT5   |
-// | EXTPWR | RGB_HUD | RGB_HUI | RGB_SAD | RGB_SAI | RGB_EFF |                  | BT TOG |      |       |      |       |       |
-// |        | RGB_BRD | RGB_BRI |         |         |         |                  |      |      |       |      |       |       |
-// |        |         |         |         |         |         | RGB_TOG | |      |      |      |       |      |       |       |
-//                    |         |         |         |         |         | |      |      |      |       |      |
             label = "Settings";
             bindings = <
 &kp ESC     &kp HOME     &kp END    &kp PG_UP  &kp PG_DN &kp DEL                         &bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4
@@ -131,9 +94,7 @@
                                                                                         &kp A      &kp B  &kp C &kp D  &kp E
            >;
 
-            // If you have multiple sensors in your overlay, add one tuple per sensor here in the same order
             sensor-bindings = <&inc_dec_kp DOWN UP>, <&inc_dec_kp PG_UP PG_DN>;
         };
-
     };
 };
